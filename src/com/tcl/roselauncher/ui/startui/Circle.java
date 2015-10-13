@@ -87,30 +87,33 @@ public class Circle extends CCSprite {
 		for (int i = 0; i < circleList.size(); i++) {
 			if (this != circleList.get(i)) {					
 				CollisionUtil.collision(circleList.get(i),this);
+				
 				//CollisionUtil.collisionS(this, micPhone);
 			}
 		}
 
-
+		//麦克风动画    初始化8个球    逻辑 只出现 几个球 如何消失   30秒内 随机出现一个球     对外的接口   切换返回问题
 		if(this.yOffset< (BALL_R + DIS_OFFSET)||this.yOffset>(SCREEN_HEIGHT - BALL_R - DIS_OFFSET))//外围
 		{
 			//碰左挡板或右挡板，y向速度置反
 			this.vy=-this.vy;
 			//flag=true;
 //			Log.d("coll 1"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else{
-			
+		}else if(this.yOffset== BALL_R ||this.yOffset==(SCREEN_HEIGHT - BALL_R)){
+			circleList.remove(this);
+			this.removeSelf();
 			this.removeFromParentAndCleanup(true);
 		}
-		
-			
+
 		if(this.xOffset< (DIS_OFFSET + BALL_R)||this.xOffset>(SCREEN_WIDTH - BALL_R - DIS_OFFSET))//外围
 		{
 			//碰前挡板或后挡板，X向速度置反
 			this.vx=-this.vx;
 			//flag=true;
 //			Log.d("coll 2"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else{
+		}else if(this.xOffset==BALL_R||this.xOffset==(SCREEN_WIDTH - BALL_R)){
+			circleList.remove(this);
+			this.removeSelf();
 			this.removeFromParentAndCleanup(true);
 		}
 		if (runFlag) {
