@@ -3,6 +3,7 @@
  */
 package com.tcl.roselauncher.ui.startui;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,7 +22,6 @@ import org.cocos2d.types.CGSize;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.LabeledIntent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
@@ -32,7 +32,11 @@ import android.view.MotionEvent;
  */
 public class StartLayer extends CCLayer {
 	
-	protected static int stateFlag;
+	/**
+	 * 
+	 */
+
+	public static int  stateFlag = 0;
 	private static float angle;
 	public MicroPhone microPhone;
 	public CCSprite scanState;
@@ -42,12 +46,20 @@ public class StartLayer extends CCLayer {
 	public static CCLabel scanNotice;
 	public static CCLabel errorNoticeU;
 	public static CCLabel errorNoticeD;
+	public static Circle colliCircle;
 	CGSize winSize = CCDirector.sharedDirector().winSize();
 	Activity curContext;
 	public static final String LOG_TAG = "StartUIActivity";
 	private static ArrayList<Circle> circleList ;
 	private static String [] infoList = {"碟中谍5", "最新的电影","控制空调","购物","听歌", "关灯","新闻","电视剧"};
-
+	
+	public void setStateFlag(int value){
+    	StartLayer.stateFlag = value;
+    }
+    
+    public int getStateFlag(){
+		return StartLayer.stateFlag;
+    }
     public StartLayer(Activity context) {
     	  super();
     	  curContext = context;
@@ -88,10 +100,12 @@ public class StartLayer extends CCLayer {
     	  errorState.setVisible(false);
     	  addChild(errorState);
     	  errorNoticeU = CCLabel.makeLabel("识别失败", "fangzheng.ttf", 36);
-    	  errorNoticeU.setPosition(SCREEN_CENTER);
+    	  errorNoticeU.setPosition(errorState.getContentSize().width/2, 
+    			  errorState.getContentSize().height/2 + 20);
     	  errorState.addChild(errorNoticeU);
     	  errorNoticeD = CCLabel.makeLabel("请重新输入", "fangzheng.ttf", 36);
-    	  errorNoticeD.setPosition(winSize.width/2, winSize.height/2 - 20);
+    	  errorNoticeD.setPosition(errorState.getContentSize().width/2, 
+    			  errorState.getContentSize().height/2 - 20);
     	  errorState.addChild(errorNoticeD);
     	  
     	  
@@ -102,7 +116,11 @@ public class StartLayer extends CCLayer {
     	  addChild(menu);
     	  scheduleUpdate();
     	  
-    	  
+    	  colliCircle = new Circle(" ",1.0f,0.0f,0.0f);
+    	  colliCircle.setPosition(SCREEN_CENTER);
+    	  colliCircle.setVisible(false);
+  		  circleList.add(colliCircle);
+  		  addChild(colliCircle);
 //        CCMenuItemFont item1 = CCMenuItemFont.item("Test pushScene", this, "onPushScene");
 //        CCMenuItemFont item2 = CCMenuItemFont.item("Test pushScene w/transition", this, "onPushSceneTran");
 //        CCMenuItemFont item3 = CCMenuItemFont.item("Quit", this, "onQuit");
@@ -111,7 +129,6 @@ public class StartLayer extends CCLayer {
 //        menu.alignItemsVertically();
 //
 //        addChild(menu);
-    	  
 
     }
     public void menuCallback(Object sender) {
@@ -159,7 +176,7 @@ public class StartLayer extends CCLayer {
 //        CGPoint convertedLocation = CCDirector.sharedDirector()
 //        	.convertToGL(CGPoint.make(event.getX(), event.getY()));
         
-        stateFlag = 3;
+        stateFlag = 2;
         return true;
     }
     @Override
@@ -168,13 +185,16 @@ public class StartLayer extends CCLayer {
 //    	CGPoint convertedLocation = CCDirector.sharedDirector()
 //            	.convertToGL(CGPoint.make(event.getX(), event.getY()));
     	Random r = new Random();
-
+    	int angle = r.nextInt(360);
+    	int radius = 212;
     	int num =  r.nextInt(6) + 2;
 		int index = r.nextInt(7);
 		float scale = num/10.0f;
-		Circle circle = new Circle(infoList[index],scale);
+		float posX = (float)(radius*Math.cos(angle));
+		float posY = (float)(radius*Math.sin(angle));
+		Circle circle = new Circle(infoList[index],scale,posX,posY);
 		
-		circle.setPosition(winSize.width/2, winSize.height/2);
+		circle.setPosition(posX + winSize.width/2, posY + winSize.height/2);
 		
 		circleList.add(circle);
 		addChild(circle);
@@ -213,6 +233,8 @@ public class StartLayer extends CCLayer {
     	scanNotice.setVisible(false);
     	errorState.setVisible(true);
     }
+    
+    
     //public void touchEnded()
     
 

@@ -19,7 +19,7 @@ public class Constant {
 	public final static float SCREEN_HEIGHT=1080.0f;//���ӵ׿��
 	public final static float DIS_OFFSET=10.0f;//���ӵ׿��
 	public static final float V_TENUATION=0.999f;//�ٶ�˥��ϵ��
-	public static final float STANDA_BAll_R = 392.0f;
+	public static final float STANDA_BAll_R = 410.0f;
 	//public static final CGPoint SCREEN_CENTER = new CGPoint(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	public static boolean weakup;
 	public static boolean talk;

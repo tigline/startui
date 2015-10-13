@@ -17,8 +17,10 @@ public class MicroPhone extends CCSprite {
 	public CCSprite circle2;
 	public CCSprite circle3;
 	public CCSprite mic;
+	public float vx = 0;
+	public float vy = 0;
 	public static int count ;
-	
+	public float BALL_R;
 	public MicroPhone(){
 		super("launcher/circle4.png");
 
@@ -37,6 +39,7 @@ public class MicroPhone extends CCSprite {
 		mic = new CCSprite("launcher/mic.png");
 		mic.setPosition(this.getContentSize().width/2, this.getContentSize().height/2);
 		addChild(mic);
+		this.BALL_R = this.getContentSize().width/2 - 20.0f;
 		
 	}
 	

@@ -10,64 +10,52 @@ import java.util.ArrayList;
 import org.cocos2d.nodes.CCLabel;
 import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.types.CGPoint;
-import org.cocos2d.types.CGRect;
-
-import android.util.Log;
-
-
-
-
-
 import static com.tcl.roselauncher.ui.startui.Constant.*;
 /**
  * @Project ControlMenu	
  * @author houxb
  * @Date 2015-9-10
+ * 内容泡泡类
  */
 public class Circle extends CCSprite {
 	
 	/**
 	 * @param string
 	 */
-	
-	public float ACC = 0.5f; //���ٶ�
+	public boolean runFlag = true;
+	public float ACC = 0.5f; //
 	public float SPEED;		//
 	public float MASS = 10;
 	public float COF = 0.05f;
-	public float vx = 0 ;  //X �����ٶ�
+	public float vx = 0 ;  //
 	public float vy = 0 ;
 	public float BALL_R;
 	public float xOffset;
 	public float yOffset;
-	
+	public float toScale;
+	public float crScale;
+	public MicroPhone micPhone;
 	//private static  Circle circle;
-	public Circle(String text, float scale) {
+	public Circle(String text, float scale ,float posX, float posY ) {
 		super("launcher/circle4.png");
-		
-		CGRect rect = getBoundingBox();
+		toScale = scale;
+//		CGRect rect = getBoundingBox();
 		CCLabel content = CCLabel.makeLabel( text, "fangzheng.ttf", 36);
-
 		setAnchorPoint(CGPoint.ccp(0.5f, 0.5f));		
-		//content.setPosition(getContentSiye().width*scale/2, getContentSiye().height*scale/2);		
+//		content.setPosition(getContentSiye().width*scale/2, getContentSiye().height*scale/2);		
 		content.setPosition(getContentSize().width/2, getContentSize().height/2);
-		Log.e("Circle point", CGRect.width(rect)/2 +" and "+CGRect.height(rect)/2);
+//		Log.e("Circle point", CGRect.width(rect)/2 +" and "+CGRect.height(rect)/2);
 		addChild(content);
-		setScale(scale);
-		this.setBallR(STANDA_BAll_R * scale/2);
-		
-//		if ((MathUtils.random(Integer.MAX_VALUE -1) % 100 - 1)%2 == 0) {
-//			vx = 450.0f;
-//		}else{
-//			vx = -450.0f;
-//		}
-//		if ((MathUtils.random(Integer.MAX_VALUE -1) % 200 - 101)%2 == 0) {
-//			vy = -300.0f;
-//		}
-		vx =  (float) (Math.random()*(Integer.MAX_VALUE -1) % 1820.0f - 910.0f);
-		vy =  (float) (Math.random()*(Integer.MAX_VALUE -1) % 980.0f - 490.0f);
-		//setTouchEnabled(true);
-		//setTouchMode(CCTouchMode.OneByOne);
-		//registerWithTouchDispatcher();
+		if (1.0f == scale) {
+			runFlag = false;
+			setScale(scale);
+			this.setBallR(STANDA_BAll_R/2);
+		}else{
+			setScale(0.001f);
+			this.setBallR(STANDA_BAll_R * 0.001f/2);
+		}
+		vx = - posX*2;
+		vy = - posY*2;		
 
 	}
 	
@@ -79,55 +67,56 @@ public class Circle extends CCSprite {
 		return this.BALL_R;
 	}
 	
-//	public CCRect getBoundingBox(CCSprite sprite, float scale){
-//		
-//		float spriteW = sprite.getContentSize().width;
-//		float spriteH = sprite.getContentSize().height;
-//		float scaleW = sprite.getContentSize().width * scale;
-//		float scaleH = sprite.getContentSize().height * scale;
-//		
-//		CCRect m_obRect = new CCRect(
-//				sprite.getPosition().x - spriteW + (spriteW - scaleW)/2,
-//				sprite.getPosition().y - spriteH + (spriteH - scaleH)/2,
-//				sprite.getContentSize().width*scale,
-//				sprite.getContentSize().height*scale);
-//		
-//		return m_obRect;
-//	}
 	
-	public void TranslateTo(float dt){		
+	public void TranslateTo(float dt){	
+		
 		xOffset = getPosition().x + vx*dt;
 		yOffset = getPosition().y + vy*dt;
 		this.setPosition(xOffset, yOffset);
 		vx = vx * V_TENUATION;
 		vy = vy * V_TENUATION;
+		crScale += dt;
+		if (crScale < toScale) {
+			setScale(crScale);
+			this.setBallR(STANDA_BAll_R * crScale/2);
+		}
 	}
 	
 	public void CheckCollision(ArrayList<Circle> circleList, float dt){
 
 		for (int i = 0; i < circleList.size(); i++) {
 			if (this != circleList.get(i)) {					
-				CollisionUtil.collision(this,circleList.get(i));
-				
+				CollisionUtil.collision(circleList.get(i),this);
+				//CollisionUtil.collisionS(this, micPhone);
 			}
 		}
 
-		if(this.yOffset< (BALL_R + DIS_OFFSET)||this.yOffset>(SCREEN_HEIGHT - BALL_R - DIS_OFFSET))//��Χ
+
+		if(this.yOffset< (BALL_R + DIS_OFFSET)||this.yOffset>(SCREEN_HEIGHT - BALL_R - DIS_OFFSET))//外围
 		{
-			//���󵲰���ҵ��壬y���ٶ��÷�
+			//碰左挡板或右挡板，y向速度置反
 			this.vy=-this.vy;
 			//flag=true;
 //			Log.d("coll 1"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
+		}else{
+			
+			this.removeFromParentAndCleanup(true);
 		}
-		if(this.xOffset< (DIS_OFFSET + BALL_R)||this.xOffset>(SCREEN_WIDTH - BALL_R - DIS_OFFSET))//��Χ
+		
+			
+		if(this.xOffset< (DIS_OFFSET + BALL_R)||this.xOffset>(SCREEN_WIDTH - BALL_R - DIS_OFFSET))//外围
 		{
-			//��ǰ�����󵲰壬X���ٶ��÷�
+			//碰前挡板或后挡板，X向速度置反
 			this.vx=-this.vx;
 			//flag=true;
 //			Log.d("coll 2"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
+		}else{
+			this.removeFromParentAndCleanup(true);
+		}
+		if (runFlag) {
+			this.TranslateTo(dt);
 		}
 		
-		this.TranslateTo(dt);
 	
 	}
 	
