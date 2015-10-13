@@ -3,7 +3,7 @@
  */
 package com.tcl.roselauncher.ui.startui;
 
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,6 +19,7 @@ import org.cocos2d.types.CGPoint;
 import org.cocos2d.types.CGSize;
 
 
+import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -35,7 +36,7 @@ public class StartLayer extends CCLayer {
 	/**
 	 * 
 	 */
-
+	public static int level = 0;
 	public static int  stateFlag = 0;
 	private static float angle;
 	public MicroPhone microPhone;
@@ -121,6 +122,7 @@ public class StartLayer extends CCLayer {
     	  colliCircle.setVisible(false);
   		  circleList.add(colliCircle);
   		  addChild(colliCircle);
+  		  
 //        CCMenuItemFont item1 = CCMenuItemFont.item("Test pushScene", this, "onPushScene");
 //        CCMenuItemFont item2 = CCMenuItemFont.item("Test pushScene w/transition", this, "onPushSceneTran");
 //        CCMenuItemFont item3 = CCMenuItemFont.item("Quit", this, "onQuit");
@@ -175,8 +177,8 @@ public class StartLayer extends CCLayer {
     	ccMacros.CCLOG(LOG_TAG, "touchBegan");
 //        CGPoint convertedLocation = CCDirector.sharedDirector()
 //        	.convertToGL(CGPoint.make(event.getX(), event.getY()));
-        
-        stateFlag = 2;
+    	stateFlag = 1;
+    	level = 3;
         return true;
     }
     @Override
@@ -184,6 +186,9 @@ public class StartLayer extends CCLayer {
 //    	ccMacros.CCLOG(LOG_TAG, "touchEnded");
 //    	CGPoint convertedLocation = CCDirector.sharedDirector()
 //            	.convertToGL(CGPoint.make(event.getX(), event.getY()));
+    	//microPhone.updateState(0);
+    	stateFlag = 1;
+    	level = 2;
     	Random r = new Random();
     	int angle = r.nextInt(360);
     	int radius = 212;
@@ -199,7 +204,7 @@ public class StartLayer extends CCLayer {
 		circleList.add(circle);
 		addChild(circle);
 		ccMacros.CCLOG(LOG_TAG, "touchEnded");
-		stateFlag = 0;
+		//stateFlag = 0;
 		return true;
     	
     }
@@ -209,6 +214,7 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(false);
+    	
     }
     
     public void setSpeakState() {
@@ -216,6 +222,12 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(false);
+    	if (2 == level) {
+    		microPhone.updateState(2);
+		}else {
+			microPhone.updateState(3);
+		}
+    	
     }
     
     public void setScanState() {

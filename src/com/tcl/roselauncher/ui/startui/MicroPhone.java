@@ -3,6 +3,7 @@
  */
 package com.tcl.roselauncher.ui.startui;
 
+
 import org.cocos2d.nodes.CCSprite;
 //import static com.tcl.roselauncher.ui.startui.Constant.*;
 /**
@@ -13,13 +14,16 @@ import org.cocos2d.nodes.CCSprite;
 public class MicroPhone extends CCSprite {
 
 	
+
 	public CCSprite circle1; // circle2, circle3, circleBig, mic;
 	public CCSprite circle2;
 	public CCSprite circle3;
 	public CCSprite mic;
 	public float vx = 0;
 	public float vy = 0;
-	public static int count ;
+	public static int countF = 0;
+	public static int countS = 0;
+	public static int countT = 0;
 	public float BALL_R;
 	public MicroPhone(){
 		super("launcher/circle4.png");
@@ -51,19 +55,69 @@ public class MicroPhone extends CCSprite {
 		mic.setVisible(value);
 	}
 	
-	public void updateState(float dt){
+	public void updateState(int level){
 
-		if (count++ < dt) {
-			circle1.setVisible(false);
-			circle2.setVisible(true);
-			circle3.setVisible(false);
-		}else if(count > dt && count < 2*dt){
-			circle1.setVisible(true);
+		if (1 == level) {
+			//circle1.runAction()
 			circle2.setVisible(false);
-			circle3.setVisible(true);			
-		}else{
-			count = 0;
+			circle3.setVisible(false);
+			if (countF++ < 15) {
+				circle1.setVisible(true);
+			}else if(countF > 15 && countF < 30){
+				circle1.setVisible(false);		
+			}else{
+				countF = 0;
+			}
+			
 		}
+		else if(2 == level) {
+			circle3.setVisible(false);
+			if (countS++ < 15) {
+				circle1.setVisible(true);
+				circle2.setVisible(false);
+			}else if(countS > 15 && countS < 30){
+				circle1.setVisible(false);
+				circle2.setVisible(true);
+			}else{
+				countS = 0;
+			}
+		}
+		else if(3 == level) {
+
+			if (countT++ < 10) {
+				circle1.setVisible(true);
+				circle2.setVisible(false);
+				circle3.setVisible(false);
+			}else if(countT > 10 && countT < 30){
+				if(countT > 20){
+					circle3.setVisible(true);
+					circle1.setVisible(false);
+					circle2.setVisible(false);	
+				}else{
+					circle2.setVisible(true);
+					circle1.setVisible(false);				
+					circle3.setVisible(false);
+				}	
+			}else{
+				countT = 0;
+			}
+		}
+		else if(0 == level){
+			circle1.setVisible(true);
+			circle2.setVisible(true);
+			circle3.setVisible(true);
+		}
+//		if (count++ < level) {
+//			circle1.setVisible(false);
+//			circle2.setVisible(true);
+//			circle3.setVisible(false);
+//		}else if(count > level && count < 2*level){
+//			circle1.setVisible(true);
+//			circle2.setVisible(false);
+//			circle3.setVisible(true);			
+//		}else{
+//			count = 0;
+//		}
 
 	}
 	

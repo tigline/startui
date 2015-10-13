@@ -54,8 +54,8 @@ public class Circle extends CCSprite {
 			setScale(0.001f);
 			this.setBallR(STANDA_BAll_R * 0.001f/2);
 		}
-		vx = - posX*2;
-		vy = - posY*2;		
+		vx = - posX*1.5f;
+		vy = - posY*1.5f;		
 
 	}
 	
@@ -93,7 +93,7 @@ public class Circle extends CCSprite {
 		}
 
 		//麦克风动画    初始化8个球    逻辑 只出现 几个球 如何消失   30秒内 随机出现一个球     对外的接口   切换返回问题
-		if(this.yOffset< (BALL_R + DIS_OFFSET)||this.yOffset>(SCREEN_HEIGHT - BALL_R - DIS_OFFSET))//外围
+		if(this.yOffset< (BALL_R )||this.yOffset>(SCREEN_HEIGHT - BALL_R))//外围
 		{
 			//碰左挡板或右挡板，y向速度置反
 			this.vy=-this.vy;

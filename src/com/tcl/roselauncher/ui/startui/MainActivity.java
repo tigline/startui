@@ -29,8 +29,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		VoiceIdentifyListener listener = new VoiceIdentifyListener(this, voiceListenerCallback);
-		initMsc();
+		//VoiceIdentifyListener listener = new VoiceIdentifyListener(this, voiceListenerCallback);
+		//initMsc();
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -66,7 +66,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onWakeup() {
 			// TODO Auto-generated method stub
-			startLayer.setStateFlag(0);
+			//startLayer.setStateFlag(0);
 		}
 		
 		@Override
@@ -78,13 +78,13 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onTalkVoiceResult(Object response) {
 			// TODO Auto-generated method stub
-			startLayer.setStateFlag(0);
+			//startLayer.setStateFlag(0);
 		}
 		
 		@Override
 		public void onTalkStart() {
 			// TODO Auto-generated method stub
-			startLayer.setStateFlag(1);
+			//startLayer.setStateFlag(1);
 		}
 		
 		@Override
@@ -96,7 +96,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onTalkEnd() {
 			// TODO Auto-generated method stub
-			startLayer.setStateFlag(2);
+			//startLayer.setStateFlag(2);
 		}
 		
 		@Override
@@ -115,7 +115,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		public void onError(String error) {
 			// TODO Auto-generated method stub
 			//talkEnd = false;
-			startLayer.setStateFlag(3);
+			//startLayer.setStateFlag(3);
 		}
 	};
 		
