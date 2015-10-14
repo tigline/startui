@@ -665,7 +665,7 @@ public class VoiceIdentifyListener {
 			if(mIVoiceListenerCallback != null){
 				mIVoiceListenerCallback.onVolumeUpdate(volume);
 			}
-//			Log.d(TAG, "当前正在说话，音量大小：" + volume);
+			//Log.d(TAG, "当前正在说话，音量大小：" + volume);
 		}
 
 

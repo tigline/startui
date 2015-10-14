@@ -4,6 +4,7 @@
 package com.tcl.roselauncher.ui.startui;
 
 
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,13 +20,12 @@ import org.cocos2d.types.CGPoint;
 import org.cocos2d.types.CGSize;
 
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
-
+import static com.tcl.roselauncher.ui.startui.Constant.*;
 /**
  * @Project StartUI	
  * @author houxb
@@ -36,9 +36,12 @@ public class StartLayer extends CCLayer {
 	/**
 	 * 
 	 */
-	public static int level = 0;
+	public static int dbLevel = 0;
 	public static int  stateFlag = 0;
 	private static float angle;
+
+	public static String resultText;
+	private boolean eninit = false;
 	public MicroPhone microPhone;
 	public CCSprite scanState;
 	public CCSprite backGroud;
@@ -48,12 +51,23 @@ public class StartLayer extends CCLayer {
 	public static CCLabel errorNoticeU;
 	public static CCLabel errorNoticeD;
 	public static Circle colliCircle;
+	private static int count;
+	private static int sum;
+	private static int accum;
 	CGSize winSize = CCDirector.sharedDirector().winSize();
 	Activity curContext;
 	public static final String LOG_TAG = "StartUIActivity";
 	private static ArrayList<Circle> circleList ;
 	private static String [] infoList = {"碟中谍5", "最新的电影","控制空调","购物","听歌", "关灯","新闻","电视剧"};
+	public CGPoint SCREEN_CENTER = CGPoint.ccp(winSize.width/2, winSize.height/2);
 	
+	public void setResultText(String text){
+    	StartLayer.resultText = text;
+    }
+    
+    public String setResultText(){
+		return StartLayer.resultText;
+    }
 	public void setStateFlag(int value){
     	StartLayer.stateFlag = value;
     }
@@ -63,10 +77,11 @@ public class StartLayer extends CCLayer {
     }
     public StartLayer(Activity context) {
     	  super();
+    	  eninit = true;
     	  curContext = context;
     	  setIsTouchEnabled(true);
     	  circleList = new ArrayList<Circle>();
-          CGPoint SCREEN_CENTER = CGPoint.ccp(winSize.width/2, winSize.height/2);
+          
           
           //背景
           backGroud = CCSprite.sprite("launcher/background.jpg");
@@ -115,13 +130,15 @@ public class StartLayer extends CCLayer {
     	  menu.setAnchorPoint(1.0f, 0.0f);
     	  menu.setPosition(winSize.width-100, 20);
     	  addChild(menu);
-    	  scheduleUpdate();
+    	  
     	  
     	  colliCircle = new Circle(" ",1.0f,0.0f,0.0f);
     	  colliCircle.setPosition(SCREEN_CENTER);
     	  colliCircle.setVisible(false);
   		  circleList.add(colliCircle);
   		  addChild(colliCircle);
+  		  scheduleUpdate();
+  //		  schedule("autoremove", 0.5f);
   		  
 //        CCMenuItemFont item1 = CCMenuItemFont.item("Test pushScene", this, "onPushScene");
 //        CCMenuItemFont item2 = CCMenuItemFont.item("Test pushScene w/transition", this, "onPushSceneTran");
@@ -133,6 +150,19 @@ public class StartLayer extends CCLayer {
 //        addChild(menu);
 
     }
+//    public void autoremove(float dt) {
+//		accum += dt;
+//		//String s = String.format("Time: %f", accum);
+//		ccMacros.CCLOG(LOG_TAG, "autoremove");
+//
+//		if( accum > 5 ) {
+//			create = true;
+//			unschedule("autoremove");
+//			ccMacros.CCLOG(LOG_TAG, "scheduler removed");
+//			
+//		}
+//	}
+    
     public void menuCallback(Object sender) {
 
     	Bundle bundle = new Bundle();
@@ -152,33 +182,58 @@ public class StartLayer extends CCLayer {
 	}
 	@SuppressLint("DefaultLocale")
 	public void update(float dt) {
+		
+		if (eninit) {
+			if (accum++ > 5.0f) {
+				accum = 0;
+				initCreate();
+			}
+		}
+		
     	if (circleList.size() > 0) {
 			for (int i = 0; i < circleList.size(); i++) {
 				circleList.get(i).CheckCollision(circleList, dt);
 			}
 		}
     	
-    	if (0 == stateFlag) {
+    	if (INIT == stateFlag) {
 			setInitState();
 		} 
-    	else if (1 == stateFlag) {
+    	else if (SPEAK == stateFlag) {
 			setSpeakState();
 		}
-    	else if (2 == stateFlag) {
+    	else if (SCAN == stateFlag) {
 			setScanState();
 		}
-    	else if (3 == stateFlag) {
+    	else if (ERROR == stateFlag) {
 			setErrorState();
 		}
-    	
 	}
+	
+	public void initCreate(){
+		//for (int i = 0; i < 8; i++) {
+		
+		if (sum < 6) {
+			if ( count++ > 15) { 
+				count = 0;
+				createCircle();
+				sum++;
+			}
+		}else{
+			sum = 0;
+			eninit = false;
+		}
+		//}
+	}
+
     @Override
     public boolean ccTouchesBegan(MotionEvent event) {
     	ccMacros.CCLOG(LOG_TAG, "touchBegan");
 //        CGPoint convertedLocation = CCDirector.sharedDirector()
 //        	.convertToGL(CGPoint.make(event.getX(), event.getY()));
-    	stateFlag = 1;
-    	level = 3;
+ //   	stateFlag = 2;
+    	//create = true;
+    	
         return true;
     }
     @Override
@@ -187,26 +242,56 @@ public class StartLayer extends CCLayer {
 //    	CGPoint convertedLocation = CCDirector.sharedDirector()
 //            	.convertToGL(CGPoint.make(event.getX(), event.getY()));
     	//microPhone.updateState(0);
-    	stateFlag = 1;
-    	level = 2;
+//    	stateFlag = 1;
+//    	dbLevel = 1;
+    	setOnResult(" ");
+    	//createCircle();
+		ccMacros.CCLOG(LOG_TAG, "touchEnded");
+		//stateFlag = 0;
+		return true;
+    }
+
+    public void createCircle() {
     	Random r = new Random();
     	int angle = r.nextInt(360);
     	int radius = 212;
+    	int index = r.nextInt(7);
     	int num =  r.nextInt(6) + 2;
-		int index = r.nextInt(7);
 		float scale = num/10.0f;
 		float posX = (float)(radius*Math.cos(angle));
 		float posY = (float)(radius*Math.sin(angle));
 		Circle circle = new Circle(infoList[index],scale,posX,posY);
-		
 		circle.setPosition(posX + winSize.width/2, posY + winSize.height/2);
-		
 		circleList.add(circle);
 		addChild(circle);
-		ccMacros.CCLOG(LOG_TAG, "touchEnded");
-		//stateFlag = 0;
-		return true;
-    	
+    }
+    public void createCircleFromVoice(String text) {
+    	Random r = new Random();
+    	int angle = r.nextInt(360);
+    	int radius = 212;
+
+    	int num =  r.nextInt(6) + 2;
+		float scale = num/10.0f;
+		float posX = (float)(radius*Math.cos(angle));
+		float posY = (float)(radius*Math.sin(angle));
+		Circle circle = new Circle(text,scale,posX,posY);
+		circle.setPosition(posX + winSize.width/2, posY + winSize.height/2);
+		circleList.add(circle);
+		addChild(circle);
+    }
+    
+    public void setDbLevel(int db) {
+    	if (db > 0 && db < 10) {
+			dbLevel = 1;
+		}
+    	else if (db > 10 && db < 20) {
+			dbLevel = 2;
+		}
+    	else if (db > 20) {
+			dbLevel = 3;
+		}else{
+			dbLevel = 0;
+		}
     }
     
     public void setInitState() {
@@ -222,11 +307,7 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(false);
-    	if (2 == level) {
-    		microPhone.updateState(2);
-		}else {
-			microPhone.updateState(3);
-		}
+    	microPhone.updateState(dbLevel);
     	
     }
     
@@ -237,6 +318,12 @@ public class StartLayer extends CCLayer {
     	errorState.setVisible(false);
     	angle += 2;
     	scanState.setRotation(angle);
+    }
+    
+    public void setOnResult(String text) {
+    	ccMacros.CCLOG(LOG_TAG, text);
+    	//setResultText(text);
+    	createCircleFromVoice(text);
     }
     
     public void setErrorState() {

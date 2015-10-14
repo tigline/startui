@@ -66,8 +66,7 @@ public class Circle extends CCSprite {
 	public float getBallR(){
 		return this.BALL_R;
 	}
-	
-	
+
 	public void TranslateTo(float dt){	
 		
 		xOffset = getPosition().x + vx*dt;

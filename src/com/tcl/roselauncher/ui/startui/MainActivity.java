@@ -14,6 +14,7 @@ import com.iflytek.cloud.util.ResourceUtil.RESOURCE_TYPE;
 import com.tcl.roselauncher.iflytek.VoiceIdentifyListener;
 import com.tcl.roselauncher.iflytek.VoiceIdentifyListener.IVoiceListenerCallback;
 
+import static com.tcl.roselauncher.ui.startui.Constant.*;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,12 +29,12 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		//VoiceIdentifyListener listener = new VoiceIdentifyListener(this, voiceListenerCallback);
-		//initMsc();
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		initMsc();
+		VoiceIdentifyListener listener = new VoiceIdentifyListener(this, voiceListenerCallback);
+		
 		mSurfaceView = new CCGLSurfaceView(this);
 		
 		setContentView(mSurfaceView);
@@ -66,25 +67,26 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onWakeup() {
 			// TODO Auto-generated method stub
-			//startLayer.setStateFlag(0);
+			startLayer.setStateFlag(INIT);
 		}
 		
 		@Override
 		public void onVolumeUpdate(int volume) {
 			// TODO Auto-generated method stub
-			
+			startLayer.setDbLevel(volume);
 		}
 		
 		@Override
 		public void onTalkVoiceResult(Object response) {
 			// TODO Auto-generated method stub
-			//startLayer.setStateFlag(0);
+			startLayer.setOnResult(response.toString());
+			//startLayer.setStateFlag(INIT);
 		}
 		
 		@Override
 		public void onTalkStart() {
 			// TODO Auto-generated method stub
-			//startLayer.setStateFlag(1);
+			startLayer.setStateFlag(SPEAK);
 		}
 		
 		@Override
@@ -96,13 +98,13 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onTalkEnd() {
 			// TODO Auto-generated method stub
-			//startLayer.setStateFlag(2);
+			startLayer.setStateFlag(SCAN);
 		}
 		
 		@Override
 		public void onSleep() {
 			// TODO Auto-generated method stub
-			//startLayer.setStateFlag(2);
+			startLayer.setStateFlag(INIT);
 		}
 		
 		@Override
@@ -115,7 +117,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		public void onError(String error) {
 			// TODO Auto-generated method stub
 			//talkEnd = false;
-			//startLayer.setStateFlag(3);
+			startLayer.setStateFlag(ERROR);
 		}
 	};
 		
