@@ -123,8 +123,8 @@ public class CollisionUtil {
 		//求a球的速度大小
 		float vA=(float)Math.sqrt(balla.vx*balla.vx+balla.vy*balla.vy);
 		//平行方向的Xy分速度
-		float vaCollx=0;
-		float vaColly=0;
+		//float vaCollx=0;
+		//float vaColly=0;
 		//垂直方向的Xy分速度
 		float vaVerticalX=0;
 		float vaVerticaly=0;
@@ -133,18 +133,18 @@ public class CollisionUtil {
 		if(V_THRESHOLD<vA)
 		{
 			//求A球的速度方向向量与碰撞直线向量B->A的夹角(弧度)
-			float aAngle=angle
-			(
-				new float[]{balla.vx,0,balla.vy},
-			    new float[]{BAx,0,BAy}
-			);			
+			//float aAngle=angle
+//			(
+//				new float[]{balla.vx,0,balla.vy},
+//			    new float[]{BAx,0,BAy}
+//			);			
 			
 			//求A球在碰撞方向的速度大小
-			float vaColl=vA*(float)Math.cos(aAngle);
+			//float vaColl=vA*(float)Math.cos(aAngle);
 			
 			//求A球在碰撞方向的速度向量
-			vaCollx=(vaColl/mvBA)*BAx;
-			vaColly=(vaColl/mvBA)*BAy;
+			//vaCollx=(vaColl/mvBA)*BAx;
+			//vaColly=(vaColl/mvBA)*BAy;
 			
 			//求A球在碰撞垂直方向的速度向量
 //			vaVerticalX=-balla.vx-vaCollx;

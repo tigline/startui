@@ -180,6 +180,8 @@ public class StartLayer extends CCLayer {
 		activity.startActivity(intent);
 		//Gdx.app.exit();
 	}
+	
+	//主循环
 	@SuppressLint("DefaultLocale")
 	public void update(float dt) {
 		

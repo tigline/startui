@@ -18,7 +18,7 @@ public class Constant {
 	public final static float SCREEN_WIDTH=1920.0f;//桌子底长度
 	public final static float SCREEN_HEIGHT=1080.0f;//桌子底宽度
 	public final static float DIS_OFFSET=20.0f;//速度衰减系数
-	public static final float V_TENUATION=0.995f;//速度衰减系数
+	public static final float V_TENUATION=0.985f;//速度衰减系数
 	public static final float STANDA_BAll_R = 410.0f;
 	//public static final CGPoint SCREEN_CENTER = new CGPoint(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	public static boolean weakup;

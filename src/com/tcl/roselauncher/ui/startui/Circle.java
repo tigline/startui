@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import org.cocos2d.nodes.CCLabel;
 import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.types.CGPoint;
+
+import android.util.Log;
 import static com.tcl.roselauncher.ui.startui.Constant.*;
 /**
  * @Project ControlMenu	
@@ -29,7 +31,7 @@ public class Circle extends CCSprite {
 	public float COF = 0.05f;
 	public float vx = 0 ;  //
 	public float vy = 0 ;
-	public float BALL_R;
+	public float BALL_R = 0.0f;
 	public float xOffset;
 	public float yOffset;
 	public float toScale;
@@ -54,8 +56,10 @@ public class Circle extends CCSprite {
 			setScale(0.001f);
 			this.setBallR(STANDA_BAll_R * 0.001f/2);
 		}
-		vx = - posX*1.5f;
-		vy = - posY*1.5f;		
+		vx =  posX*1.5f;
+		vy =  posY*1.5f;
+		this.xOffset = getPosition().x;
+		this.yOffset = getPosition().y;
 
 	}
 	
@@ -85,23 +89,19 @@ public class Circle extends CCSprite {
 
 		for (int i = 0; i < circleList.size(); i++) {
 			if (this != circleList.get(i)) {					
-				CollisionUtil.collision(circleList.get(i),this);
+				CollisionUtil.collision(this,circleList.get(i));
 				
 				//CollisionUtil.collisionS(this, micPhone);
 			}
 		}
-
-		//麦克风动画    初始化8个球    逻辑 只出现 几个球 如何消失   30秒内 随机出现一个球     对外的接口   切换返回问题
+		Log.d("Circle", this.yOffset + "/" + this.xOffset);
 		if(this.yOffset< (BALL_R )||this.yOffset>(SCREEN_HEIGHT - BALL_R))//外围
 		{
+			
 			//碰左挡板或右挡板，y向速度置反
 			this.vy=-this.vy;
 			//flag=true;
 //			Log.d("coll 1"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else if(this.yOffset== BALL_R ||this.yOffset==(SCREEN_HEIGHT - BALL_R)){
-			circleList.remove(this);
-			this.removeSelf();
-			this.removeFromParentAndCleanup(true);
 		}
 
 		if(this.xOffset< (DIS_OFFSET + BALL_R)||this.xOffset>(SCREEN_WIDTH - BALL_R - DIS_OFFSET))//外围
@@ -110,16 +110,12 @@ public class Circle extends CCSprite {
 			this.vx=-this.vx;
 			//flag=true;
 //			Log.d("coll 2"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else if(this.xOffset==BALL_R||this.xOffset==(SCREEN_WIDTH - BALL_R)){
-			circleList.remove(this);
-			this.removeSelf();
-			this.removeFromParentAndCleanup(true);
 		}
+		//麦克风动画    初始化8个球    逻辑 只出现 几个球 如何消失   30秒内 随机出现一个球     对外的接口   切换返回问题
 		if (runFlag) {
 			this.TranslateTo(dt);
 		}
-		
-	
+
 	}
 	
     /*
