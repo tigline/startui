@@ -104,7 +104,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
 		@Override
 		public void onSleep() {
 			// TODO Auto-generated method stub
-			startLayer.setStateFlag(INIT);
+			startLayer.setStateFlag(SLEEP);
 		}
 		
 		@Override
@@ -160,7 +160,7 @@ private VoiceIdentifyListener.IVoiceListenerCallback voiceListenerCallback = new
     public void onDestroy() {
     	super.onDestroy();
     	
-    	CCDirector.sharedDirector().end();
+    	//CCDirector.sharedDirector().end();
     }
 	
 }

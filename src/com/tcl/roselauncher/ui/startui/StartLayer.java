@@ -39,9 +39,10 @@ public class StartLayer extends CCLayer {
 	public static int dbLevel = 0;
 	public static int  stateFlag = 0;
 	private static float angle;
-
 	public static String resultText;
-	private boolean eninit = false;
+	private boolean eninit ;
+	private boolean fromRight ;
+	private boolean showSleep ;
 	public MicroPhone microPhone;
 	public CCSprite scanState;
 	public CCSprite backGroud;
@@ -51,6 +52,7 @@ public class StartLayer extends CCLayer {
 	public static CCLabel errorNoticeU;
 	public static CCLabel errorNoticeD;
 	public static Circle colliCircle;
+	public CCSprite sleepState;
 	private static int count;
 	private static int sum;
 	private static int accum;
@@ -58,7 +60,7 @@ public class StartLayer extends CCLayer {
 	Activity curContext;
 	public static final String LOG_TAG = "StartUIActivity";
 	private static ArrayList<Circle> circleList ;
-	private static String [] infoList = {"碟中谍5", "最新的电影","控制空调","购物","听歌", "关灯","新闻","电视剧"};
+	private static String [] infoList = {"电视剧", "最新的电影","控制空调","购物","听歌", "关灯","新闻","电视剧"};
 	public CGPoint SCREEN_CENTER = CGPoint.ccp(winSize.width/2, winSize.height/2);
 	
 	public void setResultText(String text){
@@ -78,13 +80,15 @@ public class StartLayer extends CCLayer {
     public StartLayer(Activity context) {
     	  super();
     	  eninit = true;
+    	  fromRight = true;
+    	  showSleep = false;
     	  curContext = context;
     	  setIsTouchEnabled(true);
     	  circleList = new ArrayList<Circle>();
           
           
           //背景
-          backGroud = CCSprite.sprite("launcher/background.jpg");
+          backGroud = CCSprite.sprite("launcher/background.png");
           backGroud.setPosition(SCREEN_CENTER);
           //backGroud.setVisible(true);
           addChild(backGroud);
@@ -123,20 +127,36 @@ public class StartLayer extends CCLayer {
     	  errorNoticeD.setPosition(errorState.getContentSize().width/2, 
     			  errorState.getContentSize().height/2 - 20);
     	  errorState.addChild(errorNoticeD);
-    	  
-    	  
-    	  CCMenuItem item = CCMenuItemImage.item("SendScoreButton.png", "SendScoreButtonPressed.png", this, "menuCallback");
-    	  CCMenu menu = CCMenu.menu(item);
-    	  menu.setAnchorPoint(1.0f, 0.0f);
-    	  menu.setPosition(winSize.width-100, 20);
-    	  addChild(menu);
-    	  
-    	  
-    	  colliCircle = new Circle(" ",1.0f,0.0f,0.0f);
+    	  //休眠状态
+    	  sleepState = CCSprite.sprite("launcher/circle4.png");
+  		  sleepState.setPosition(SCREEN_CENTER);
+  		  sleepState.setVisible(false);
+  		  addChild(sleepState);
+  		  CCLabel sleepNoticeU = CCLabel.makeLabel("请叫我", "fangzheng.ttf", 36);
+  		  sleepNoticeU.setPosition(sleepState.getContentSize().width/2, 
+  				sleepState.getContentSize().height/2 + 23);
+  		  sleepState.addChild(sleepNoticeU);
+  		  CCLabel sleepNoticeD = CCLabel.makeLabel("讯飞语言", "fangzheng.ttf", 36);
+  		  sleepNoticeD.setPosition(sleepState.getContentSize().width/2, 
+  				sleepState.getContentSize().height/2 - 23);
+  		  sleepState.addChild(sleepNoticeD);
+
+    	  //辅助碰撞圈
+    	  colliCircle = new Circle(" ",1.0f,0.0f,0.0f,false);
     	  colliCircle.setPosition(SCREEN_CENTER);
     	  colliCircle.setVisible(false);
   		  circleList.add(colliCircle);
   		  addChild(colliCircle);
+  		  
+  		  //跳转按钮
+  		  CCMenuItem item = CCMenuItemImage.item("btn-play-normal.png", "btn-play-selected.png", this, "menuCallback");
+  		  CCMenu menu = CCMenu.menu(item);
+  		  menu.setAnchorPoint(1.0f, 0.0f);
+  		  menu.setPosition(winSize.width-100, 30); 
+  		  addChild(menu);
+
+  		  
+  		  
   		  scheduleUpdate();
   //		  schedule("autoremove", 0.5f);
   		  
@@ -184,7 +204,7 @@ public class StartLayer extends CCLayer {
 	public void update(float dt) {
 		
 		if (eninit) {
-			if (accum++ > 5.0f) {
+			if (accum++ > 0.05f) {
 				accum = 0;
 				initCreate();
 			}
@@ -207,7 +227,15 @@ public class StartLayer extends CCLayer {
 		}
     	else if (ERROR == stateFlag) {
 			setErrorState();
+		}else if (SLEEP == stateFlag && showSleep) {
+			setSleepState();
 		}
+    	
+    	if (circleList.size() > MAXSIZE) {
+    		circleList.get(0).removeFromParentAndCleanup(true);
+			circleList.remove(0);
+		}
+    	
 	}
 	
 	public void initCreate(){
@@ -216,14 +244,15 @@ public class StartLayer extends CCLayer {
 		if (sum < 6) {
 			if ( count++ > 15) { 
 				count = 0;
-				createCircle();
+				createCircle(sum);
 				sum++;
 			}
 		}else{
 			sum = 0;
 			eninit = false;
+			showSleep = true;
 		}
-		//}
+
 	}
 
     @Override
@@ -251,43 +280,58 @@ public class StartLayer extends CCLayer {
 		return true;
     }
 
-    public void createCircle() {
+    public void createCircle(int index) {
+    	int angle;
     	Random r = new Random();
-    	int angle = r.nextInt(360);
+    	if (fromRight) {
+    		angle = r.nextInt(120) + 300;
+
+    		fromRight = false;
+		}else{
+			angle = r.nextInt(120) + 120;
+			fromRight = true;
+		}
     	int radius = 212;
-    	int index = r.nextInt(7);
     	int num =  r.nextInt(6) + 2;
 		float scale = num/10.0f;
-		float posX = (float)(radius*Math.cos(angle));
-		float posY = (float)(radius*Math.sin(angle));
-		Circle circle = new Circle(infoList[index],scale,posX,posY);
+		float posX = (float)(radius*Math.cos(Math.toRadians(angle)));
+		float posY = (float)(radius*Math.sin(Math.toRadians(angle)));
+		Circle circle = new Circle(infoList[index],scale,posX,posY,true);
 		circle.setPosition(posX + winSize.width/2, posY + winSize.height/2);
 		circleList.add(circle);
 		addChild(circle);
     }
     public void createCircleFromVoice(String text) {
+    	int angle;
     	Random r = new Random();
-    	int angle = r.nextInt(360);
+    	if (fromRight) {
+    		angle = r.nextInt(120) + 300;
+    		fromRight = false;
+		}else{
+			angle = r.nextInt(120) + 120;
+			fromRight = true;
+		}
+
     	int radius = 212;
 
     	int num =  r.nextInt(6) + 2;
 		float scale = num/10.0f;
-		float posX = (float)(radius*Math.cos(angle));
-		float posY = (float)(radius*Math.sin(angle));
-		Circle circle = new Circle(text,scale,posX,posY);
+		float posX = (float)(radius*Math.cos(Math.toRadians(angle)));
+		float posY = (float)(radius*Math.sin(Math.toRadians(angle)));
+		Circle circle = new Circle(text,scale,posX,posY,true);
 		circle.setPosition(posX + winSize.width/2, posY + winSize.height/2);
 		circleList.add(circle);
 		addChild(circle);
     }
     
     public void setDbLevel(int db) {
-    	if (db > 0 && db < 10) {
+    	if (db > 0 && db < 15) {
 			dbLevel = 1;
 		}
-    	else if (db > 10 && db < 20) {
+    	else if (db > 15 && db < 25) {
 			dbLevel = 2;
 		}
-    	else if (db > 20) {
+    	else if (db > 25) {
 			dbLevel = 3;
 		}else{
 			dbLevel = 0;
@@ -299,7 +343,8 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(false);
-    	
+    	sleepState.setVisible(false);
+    	colliCircle.setVisible(false);
     }
     
     public void setSpeakState() {
@@ -307,7 +352,10 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(false);
+    	sleepState.setVisible(false);
+    	colliCircle.setVisible(false);
     	microPhone.updateState(dbLevel);
+    	
     	
     }
     
@@ -316,6 +364,8 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(true);
     	scanNotice.setVisible(true);
     	errorState.setVisible(false);
+    	sleepState.setVisible(false);
+    	colliCircle.setVisible(false);
     	angle += 2;
     	scanState.setRotation(angle);
     }
@@ -331,9 +381,20 @@ public class StartLayer extends CCLayer {
     	scanState.setVisible(false);
     	scanNotice.setVisible(false);
     	errorState.setVisible(true);
+    	sleepState.setVisible(false);
+    	colliCircle.setVisible(false);
     }
     
-    
+    public void setSleepState() {
+    	
+    	sleepState.setVisible(true);
+    	colliCircle.setVisible(true);
+    	microPhone.setVisible(false);
+    	scanState.setVisible(false);
+    	scanNotice.setVisible(false);
+    	errorState.setVisible(false);
+    	
+    }
     //public void touchEnded()
     
 

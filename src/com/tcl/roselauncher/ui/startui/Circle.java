@@ -9,6 +9,9 @@ import java.util.ArrayList;
 
 import org.cocos2d.nodes.CCLabel;
 import org.cocos2d.nodes.CCSprite;
+import org.cocos2d.nodes.CCTextureCache;
+import org.cocos2d.particlesystem.CCParticleFire;
+import org.cocos2d.particlesystem.CCParticleSystem;
 import org.cocos2d.types.CGPoint;
 import static com.tcl.roselauncher.ui.startui.Constant.*;
 /**
@@ -35,27 +38,40 @@ public class Circle extends CCSprite {
 	public float toScale;
 	public float crScale;
 	public MicroPhone micPhone;
+	public boolean firstCreate;
+	public boolean turn;
+	public int offsetX = 0;
+	public int offsetY = 0;
 	//private static  Circle circle;
-	public Circle(String text, float scale ,float posX, float posY ) {
+	public Circle(String text, float scale ,float posX, float posY, boolean init ) {
 		super("launcher/circle4.png");
 		toScale = scale;
+		firstCreate = init;
 //		CGRect rect = getBoundingBox();
 		CCLabel content = CCLabel.makeLabel( text, "fangzheng.ttf", 36);
 		setAnchorPoint(CGPoint.ccp(0.5f, 0.5f));		
-//		content.setPosition(getContentSiye().width*scale/2, getContentSiye().height*scale/2);		
+//		content.setPosition(getContentSiye().width*scale/2, getContentSiye().height*scale/2);
 		content.setPosition(getContentSize().width/2, getContentSize().height/2);
-//		Log.e("Circle point", CGRect.width(rect)/2 +" and "+CGRect.height(rect)/2);
 		addChild(content);
+//		CCParticleSystem	emitter;
+//		emitter = CCParticleFire.node();
+//		emitter.setTexture(CCTextureCache.sharedTextureCache().addImage("fire.png"));
+//		emitter.setPosition(getContentSize().width/2, getContentSize().height/2);
+//		addChild(emitter);
+		
+//		Log.e("Circle point", CGRect.width(rect)/2 +" and "+CGRect.height(rect)/2);
+		
 		if (1.0f == scale) {
-			runFlag = false;
+			runFlag = false; 
 			setScale(scale);
 			this.setBallR(STANDA_BAll_R/2);
 		}else{
 			setScale(0.001f);
 			this.setBallR(STANDA_BAll_R * 0.001f/2);
 		}
-		vx = - posX*1.5f;
-		vy = - posY*1.5f;		
+		vx = posX*2.7f;
+		vy = posY*2.7f;	
+		
 
 	}
 	
@@ -68,21 +84,14 @@ public class Circle extends CCSprite {
 	}
 
 	public void TranslateTo(float dt){	
-		
-		xOffset = getPosition().x + vx*dt;
-		yOffset = getPosition().y + vy*dt;
-		this.setPosition(xOffset, yOffset);
+
 		vx = vx * V_TENUATION;
 		vy = vy * V_TENUATION;
-		crScale += dt;
-		if (crScale < toScale) {
-			setScale(crScale);
-			this.setBallR(STANDA_BAll_R * crScale/2);
-		}
+		
 	}
 	
 	public void CheckCollision(ArrayList<Circle> circleList, float dt){
-
+		
 		for (int i = 0; i < circleList.size(); i++) {
 			if (this != circleList.get(i)) {					
 				CollisionUtil.collision(circleList.get(i),this);
@@ -90,36 +99,63 @@ public class Circle extends CCSprite {
 				//CollisionUtil.collisionS(this, micPhone);
 			}
 		}
-
-		//麦克风动画    初始化8个球    逻辑 只出现 几个球 如何消失   30秒内 随机出现一个球     对外的接口   切换返回问题
-		if(this.yOffset< (BALL_R )||this.yOffset>(SCREEN_HEIGHT - BALL_R))//外围
-		{
-			//碰左挡板或右挡板，y向速度置反
-			this.vy=-this.vy;
-			//flag=true;
-//			Log.d("coll 1"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else if(this.yOffset== BALL_R ||this.yOffset==(SCREEN_HEIGHT - BALL_R)){
-			circleList.remove(this);
-			this.removeSelf();
-			this.removeFromParentAndCleanup(true);
+		if (runFlag) {
+			xOffset = getPosition().x + vx*dt;
+			yOffset = getPosition().y + vy*dt;
+			this.setPosition(xOffset, yOffset);
+			crScale += dt*2.0f;
+			if (crScale < toScale) {
+				setScale(crScale);
+				this.setBallR(STANDA_BAll_R * crScale/2);
+			}
 		}
 
-		if(this.xOffset< (DIS_OFFSET + BALL_R)||this.xOffset>(SCREEN_WIDTH - BALL_R - DIS_OFFSET))//外围
+		if(this.yOffset< BALL_R ||this.yOffset>(SCREEN_HEIGHT - BALL_R))
 		{
-			//碰前挡板或后挡板，X向速度置反
-			this.vx=-this.vx;
-			//flag=true;
-//			Log.d("coll 2"+texId,"x="+this.xOffset+",y="+this.yOffset+", vx="+this.vx+",vy="+this.vy);
-		}else if(this.xOffset==BALL_R||this.xOffset==(SCREEN_WIDTH - BALL_R)){
-			circleList.remove(this);
-			this.removeSelf();
-			this.removeFromParentAndCleanup(true);
+			
+			if (firstCreate) {
+				offsetY += dt;
+				if (offsetY > 5.0f ) {
+					removeFromParentAndCleanup(true);
+					circleList.remove(this);
+				}else{
+					this.vy=-0.8f*this.vy;
+					this.firstCreate = false;
+				}
+				
+			}
+			else{
+				removeFromParentAndCleanup(true);
+				circleList.remove(this);
+			}	
+
 		}
+//		if (this.yOffset< (BALL_R )||this.yOffset>(SCREEN_HEIGHT - BALL_R)) {
+//			
+//		}
+		if(this.xOffset< BALL_R||this.xOffset>(SCREEN_WIDTH - BALL_R))//外围
+		{
+			if (firstCreate) {
+				offsetX += dt;
+				if (offsetX > 5.0f ) {
+					removeFromParentAndCleanup(true);
+					circleList.remove(this);
+				}else{
+					this.vx=-0.8f*this.vx;
+					this.firstCreate = false;
+				}
+				
+			}
+			else{
+				removeFromParentAndCleanup(true);
+				circleList.remove(this);
+			}		
+		}
+		
 		if (runFlag) {
 			this.TranslateTo(dt);
 		}
-		
-	
+
 	}
 	
     /*
